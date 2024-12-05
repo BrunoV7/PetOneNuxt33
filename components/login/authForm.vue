@@ -32,7 +32,7 @@ const onSubmit = async (event: Event) => {
 
   try {
     const response = await api.post('/auth/login', loginPayload);
-    
+
     if (response.data.access_token) {
       // Usando o composable do Nuxt para definir o cookie
       const authToken = useCookie('authToken', {
@@ -42,13 +42,13 @@ const onSubmit = async (event: Event) => {
         sameSite: 'strict' // proteção contra CSRF
       });
       authToken.value = response.data.access_token;
-      
+
       // Usar replace para substituir a rota atual
       await router.replace('/user/dashboard');
     }
   } catch (error: any) {
     console.error('Erro completo:', error);
-    
+
     if (error.response) {
       // O servidor respondeu com um status de erro
       console.error('Dados do erro:', error.response.data);
@@ -64,7 +64,7 @@ const onSubmit = async (event: Event) => {
       errorMessage.value = 'Erro inesperado. Tente novamente.';
     }
 
-    password.value = ''; 
+    password.value = '';
     isError.value = true;
   } finally {
     isLoading.value = false;
