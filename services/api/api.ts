@@ -1,51 +1,43 @@
-import axios, { AxiosError } from 'axios';
-import type { InternalAxiosRequestConfig } from 'axios';
-import { useRouter } from 'vue-router';
-const router = useRouter()
-// Configurar a instância do Axios
+// api.ts
+import axios from 'axios';
 
 const api = axios.create({
-  baseURL: "http://localhost:8080/api" // Use variáveis de ambiente
-});
-
-// Interceptador de requisição
-api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const token = localStorage.getItem('token');
-  
-  // Adicionar token de autorização se existir e não estiver na página de login
-  if (token && router.currentRoute.value.path !== '/login') {
-    config.headers.Authorization = `Bearer ${token}`;
+  baseURL: process.env.NUXT_API_URL || 'http://localhost:8080/api',
+  headers: {
+    'Content-Type': 'application/json'
   }
-  
-  return config;
-}, (error) => {
-  return Promise.reject(error);
 });
 
-// Interceptador de resposta
+// Adicionar interceptor para adicionar token
+api.interceptors.request.use(
+  (config) => {
+    const publicRoutes = ['/auth/login', '/auth/register'];
+    
+    const isPublicRoute = publicRoutes.some(route => 
+      config.url?.includes(route)
+    );
+    
+    if (!isPublicRoute && process.client) {
+      const authToken = useCookie('authToken');
+      if (authToken.value) {
+        config.headers.Authorization = `Bearer ${authToken.value}`;
+      }
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Interceptor de resposta para lidar com erros de autenticação
 api.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
-    if (error.response) {
-      switch (error.response.status) {
-        case 401:
-          alert('401 - Usuário não autenticado');
-          router.push('/login');
-          break;
-        case 403:
-          alert('403 - Usuário não autorizado');
-          break;
-        default:
-          console.error('HTTP error:', error.response);
-      }
-    } else if (error.request) {
-      // Requisição feita, mas sem resposta
-      console.error('No response received:', error.request);
-    } else {
-      // Algo aconteceu ao configurar a requisição
-      console.error('Error setting up request:', error.message);
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Token inválido ou expirado
+      const authToken = useCookie('authToken');
+      authToken.value = null;
+      navigateTo('/login');
     }
-    
     return Promise.reject(error);
   }
 );
