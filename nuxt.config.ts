@@ -4,10 +4,29 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   pages: true,
   css: ['~/assets/css/main.css'],
+
   postcss: {
     plugins: {
       tailwindcss: {},
       autoprefixer: {},
     },
+  },
+
+  modules: ['@nuxtjs/tailwindcss', 'shadcn-nuxt'],
+
+  shadcn: {
+    /**
+     * Prefix for all the imported components
+     */
+    prefix: '',
+    /**
+     * Directory where the components live.
+     * @default "./components/ui"
+     */
+    componentDir: './components/ui',
+  },
+
+  experimental: {
+    // reactivityTransform: true, // Habilita macros reativas do Vue
   },
 })
