@@ -1,4 +1,3 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 import fs from 'fs';
 
 export default defineNuxtConfig({
@@ -17,28 +16,21 @@ export default defineNuxtConfig({
   modules: ['@nuxtjs/tailwindcss', 'shadcn-nuxt'],
 
   shadcn: {
-    /**
-     * Prefix for all the imported components
-     */
     prefix: '',
-    /**
-     * Directory where the components live.
-     * @default "./components/ui"
-     */
     componentDir: './components/ui',
   },
 
   experimental: {
-    // reactivityTransform: true, // Habilita macros reativas do Vue
+    // reactivityTransform: true,
   },
 
   // Configuração de servidor
   devServer: {
-    port: 443,  // Altere para 443 para rodar em HTTPS
-    host: '0.0.0.0',  // Isso permite que o Nuxt seja acessado de fora do container
-    https: {
-      key: fs.readFileSync('/etc/ssl/private/server.key', 'utf8'),  // Caminho para sua chave privada
-      cert: fs.readFileSync('/etc/ssl/certs/server.crt', 'utf8')  // Caminho para o certificado SSL
-    }
+    port: 443,  // Porta 443 para HTTPS
+    host: '0.0.0.0',  // Isso permite acesso de fora do container
+    https: process.env.NODE_ENV === 'production' ? {
+      key: fs.readFileSync('/etc/ssl/private/server.key', 'utf8'),
+      cert: fs.readFileSync('/etc/ssl/certs/server.crt', 'utf8')
+    } : false  // Não usa HTTPS em desenvolvimento
   },
 })
