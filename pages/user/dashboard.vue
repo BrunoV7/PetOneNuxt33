@@ -48,11 +48,11 @@ onMounted(async () => {
     // You might want to show an error message to the user here
   }
 });
-/*
+
 definePageMeta({
   middleware: 'auth'
 });
-*/
+
 </script>
 
 <template>
